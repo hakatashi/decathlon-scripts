@@ -1,0 +1,3 @@
+{
+  "extends": "@hakatashi/eslint-config/typescript"
+}

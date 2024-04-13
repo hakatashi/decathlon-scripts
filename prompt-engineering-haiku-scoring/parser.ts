@@ -29,7 +29,7 @@ const JAPANESE_SYLLABLES = [
 	'ぢゃ', 'ぢゅ', 'ぢぇ', 'ぢょ',
 	'びゃ', 'びゅ', 'びょ',
 	'ぴゃ', 'ぴゅ', 'ぴょ',
-	'てぃ',
+	'てぃ', 'とぅ',
 	'つぁ', 'つぃ', 'つぇ', 'つぉ',
 	'ふぁ', 'ふぃ', 'ふぇ', 'ふぉ',
 	'ゐ', 'ゑ',
@@ -79,6 +79,10 @@ export const parse = (input: string) => {
 	let jiamariPoint = 15;
 
 	for (const line of lines) {
+		if (line.startsWith('```')) {
+			continue;
+		}
+
 		const columns = line.split(/[,，､、]/);
 		const commas = line.matchAll(/[,，､、]/g);
 		if (columns.some((column) => column.trim().length === 0)) {

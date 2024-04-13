@@ -34,11 +34,17 @@ const firestore = new Firestore();
 	const submissionsRef = firestore.collection(`games/${HAIKU_GAME_ID}/submissions`);
 	const submissions = await submissionsRef.get();
 
+	const resultsRef = firestore.collection(`games/${HAIKU_GAME_ID}/results`);
+
 	for (const submission of submissions.docs) {
 		const submissionData = submission.data();
 		const prompt = submissionData.prompt.replaceAll('【テーマ】', HAIKU_THEME);
 
 		console.log(`=== Processing ${submission.id} ===`);
+
+		await new Promise((resolve) => {
+			setTimeout(resolve, 3000);
+		});
 
 		const completion = await openai.chat.completions.create({
 			model: 'gpt-3.5-turbo',
@@ -63,14 +69,13 @@ const firestore = new Firestore();
 		console.log(parseResult);
 		console.log('');
 
-		await submission.ref.update({
-			result: {
-				openaiResponse: completion,
-				output: result,
-				parsedOutput: parseResult.output,
-				point: parseResult.point,
-				points: parseResult.points,
-			},
+		await resultsRef.doc(submission.id).set({
+			openaiResponse: completion,
+			output: result,
+			parsedOutput: parseResult.output,
+			point: parseResult.point,
+			points: parseResult.points,
+			seed: Math.random(),
 		});
 	}
 })();

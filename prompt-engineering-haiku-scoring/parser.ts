@@ -33,7 +33,7 @@ const JAPANESE_SYLLABLES = [
 	'つぁ', 'つぃ', 'つぇ', 'つぉ',
 	'ふぁ', 'ふぃ', 'ふぇ', 'ふぉ',
 	'ゐ', 'ゑ',
-	'っ',
+	'っ', 'ー',
 ];
 
 const JAPANESE_SYLLABLES_REGEX = new RegExp(`${JAPANESE_SYLLABLES.join('|')}`, 'g');

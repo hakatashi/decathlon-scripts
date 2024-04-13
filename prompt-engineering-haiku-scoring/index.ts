@@ -1,6 +1,6 @@
+import {Firestore} from '@google-cloud/firestore';
 import OpenAI from 'openai';
 import 'dotenv/config';
-import {Firestore} from '@google-cloud/firestore';
 import {parse} from './parser';
 
 const openai = new OpenAI({

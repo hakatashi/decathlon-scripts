@@ -39,14 +39,14 @@ const getQuizzes = async () => {
 
 	const questionsCount = getResponse.data.items?.length ?? 0;
 
-	if (questionsCount > 0) {
+	if (questionsCount > 2) {
 		const deleteQuestionResponse = await form.forms.batchUpdate({
 			formId: process.env.IT_QUIZ_FORM_ID,
 			requestBody: {
-				requests: Array.from({length: questionsCount}, () => ({
+				requests: Array.from({length: questionsCount - 2}, () => ({
 					deleteItem: {
 						location: {
-							index: 0,
+							index: 2,
 						},
 					},
 				})),
@@ -68,7 +68,12 @@ const getQuizzes = async () => {
 								grading: {
 									pointValue: 2,
 									correctAnswers: {
-										answers: answers.split(',').map((answer) => ({value: answer})),
+										answers:
+											answers
+												.split(/[[\]、]/)
+												.map((answer) => answer.trim())
+												.filter((answer) => answer.length > 0)
+												.map((answer) => ({value: answer})),
 									},
 								},
 								textQuestion: {},
@@ -76,7 +81,7 @@ const getQuizzes = async () => {
 						},
 					},
 					location: {
-						index,
+						index: index + 2,
 					},
 				},
 			})),

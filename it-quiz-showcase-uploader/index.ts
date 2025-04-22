@@ -20,12 +20,12 @@ interface ItQuizShowcaseQuiz extends DocumentData {
 	correctAnswers: string[],
 	imageUrl: string | null,
 	description: string | null,
-	answers: ItQuizShowcaseQuizAnswer[],
+	answers: Record<string, ItQuizShowcaseQuizAnswer>,
 }
 
 interface ItQuizShowcase extends DocumentData {
 	currentQuizIndex: number,
-	quizzes: ItQuizShowcaseQuiz[],
+	quizzes: Record<string, ItQuizShowcaseQuiz>,
 }
 
 const getQuizzes = async () => {
@@ -102,7 +102,7 @@ const transpose = <T>(array: T[][]) => array[0].map((_, colIndex) => array.map((
 	const userIds = transposedResults[0].slice(1).map((userId) => userId.trim());
 	const anonymousFlags = transposedResults[1].slice(1).map((flag) => flag.trim() !== '');
 
-	const quizResults: ItQuizShowcaseQuiz[] = [];
+	const quizResults: Record<string, ItQuizShowcaseQuiz> = {};
 
 	for (const [quizIndex, quizResponses] of transposedResults.slice(2).entries()) {
 		const [quiz, ...answers] = quizResponses.map((response) => response.trim());
@@ -112,7 +112,7 @@ const transpose = <T>(array: T[][]) => array[0].map((_, colIndex) => array.map((
 			continue;
 		}
 
-		const quizAnswers: ItQuizShowcaseQuizAnswer[] = [];
+		const quizAnswers: Record<string, ItQuizShowcaseQuizAnswer> = {};
 
 		for (const [userIndex, answer] of answers.entries()) {
 			const userId = userIds[userIndex];
@@ -122,30 +122,35 @@ const transpose = <T>(array: T[][]) => array[0].map((_, colIndex) => array.map((
 				continue;
 			}
 
-			quizAnswers.push({
+			quizAnswers[userId] = {
 				userId,
 				text: answer,
-				status: correctAnswers.includes(answer) ? 'correct' : 'wrong',
+				status: correctAnswers.some((correctAnswer) => {
+					const a = correctAnswer.trim().toLowerCase().normalize('NFKC');
+					const b = answer.trim().toLowerCase().normalize('NFKC');
+					return a === b;
+				}) ? 'correct' : 'wrong',
 				isShown: true,
 				isAnonymous,
-			});
+			};
 		}
 
-		quizResults.push({
+		quizResults[quizIndex.toString()] = {
 			id: quizIndex.toString(),
 			index: quizIndex,
-			question: quiz,
+			question: quiz.replace(/^Q\d+\./, '').trim(),
 			correctAnswers,
 			imageUrl: null,
 			description: null,
 			answers: quizAnswers,
-		});
+		};
 	}
 
 	process.env.GOOGLE_APPLICATION_CREDENTIALS = './tsg-decathlon-firebase-adminsdk-64vnw-18995df04d.json';
 
 	const saveResultsResponse = await showcaseRef.set({
 		currentQuizIndex: 0,
+		usersCount: userIds.length,
 		quizzes: quizResults,
 	});
 	console.log(inspect(saveResultsResponse, {depth: null, colors: true}));

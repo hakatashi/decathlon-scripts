@@ -59,32 +59,37 @@ const getQuizzes = async () => {
 	const addQuestionResponse = await form.forms.batchUpdate({
 		formId: process.env.IT_QUIZ_FORM_ID,
 		requestBody: {
-			requests: quizzes.map(([quiz, answers], index) => ({
-				createItem: {
-					item: {
-						title: `Q${index + 1}. ${quiz}`,
-						questionItem: {
-							question: {
-								grading: {
-									pointValue: 2,
-									correctAnswers: {
-										answers:
+			requests: quizzes.map(([quiz, answers], index) => {
+				const [firstLine, ...remainingLines] = quiz.split('\n');
+
+				return {
+					createItem: {
+						item: {
+							title: `Q${index + 1}. ${firstLine}`,
+							...(remainingLines.length > 0 ? {description: remainingLines.join('\n')} : {}),
+							questionItem: {
+								question: {
+									grading: {
+										pointValue: 2,
+										correctAnswers: {
+											answers:
 											answers
 												.split(/[[\]、]/)
 												.map((answer) => answer.trim())
 												.filter((answer) => answer.length > 0)
 												.map((answer) => ({value: answer})),
+										},
 									},
+									textQuestion: {},
 								},
-								textQuestion: {},
 							},
 						},
+						location: {
+							index: index + 2,
+						},
 					},
-					location: {
-						index: index + 2,
-					},
-				},
-			})),
+				};
+			}),
 		},
 	});
 

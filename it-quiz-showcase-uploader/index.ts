@@ -75,7 +75,7 @@ const transpose = <T>(array: T[][]) => array[0].map((_, colIndex) => array.map((
 	const db = getFirestore(app);
 
 	const showcaseRef = db
-		.collection('games').doc('2025:it-quiz')
+		.collection('games').doc('2026:it-quiz')
 		.collection('showcases').doc('default') as DocumentReference<ItQuizShowcase>;
 
 	console.log((await showcaseRef.get()).data());

@@ -130,3 +130,4 @@ dist
 .pnp.*
 
 tsg-decathlon-*.json
+google_application_credentials*.json
